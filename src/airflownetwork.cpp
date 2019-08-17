@@ -28,6 +28,7 @@
 #include <iostream>
 #include "pugixml.hpp"
 #include "model.hpp"
+#include <chrono>
 
 int main(int argc, char* argv[])
 {
@@ -133,10 +134,17 @@ int main(int argc, char* argv[])
   model.open_output("output");
   model.write_output(0.0);
 
+  auto start = std::chrono::high_resolution_clock::now();
   model.steady_solve();
+  auto stop = std::chrono::high_resolution_clock::now();
+
   model.write_output(0.0);
 
   model.close_output();
+
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+  std::cout << "Computation time: " << duration.count() << " microseconds" << std::endl;
 
   return 0;
 }

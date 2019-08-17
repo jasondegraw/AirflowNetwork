@@ -133,7 +133,8 @@ template <typename P> struct PowerLaw : public Element<P> // Surface crack compo
       if (exponent == 0.5) {
         FT = sign * coef * upwind_sqrt_density * std::sqrt(abs_pdrop) * Ctl;
       } else {
-        FT = sign * coef * upwind_sqrt_density * std::pow(abs_pdrop, exponent) * Ctl;
+        FT = sign * coef * upwind_sqrt_density * fast_pow64_065(abs_pdrop) * Ctl;
+        //FT = sign * coef * upwind_sqrt_density * std::pow(abs_pdrop, exponent) * Ctl
       }
       // Select laminar or turbulent flow.
       if (std::abs(FL) <= std::abs(FT)) {
