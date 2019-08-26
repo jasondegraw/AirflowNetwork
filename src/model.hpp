@@ -1,4 +1,5 @@
 // Copyright (c) 2019, Alliance for Sustainable Energy, LLC
+// Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -135,7 +136,7 @@ template <typename I, typename P> struct Model
     std::array<double, 2> F, DF;
     for (auto& link : links) {
       double dp = link.node0.pressure - link.node1.pressure;
-      link.element.calculate(false, dp, link.multiplier, 1.0, link.node0, link.node1, F, DF);
+      link.element.calculate(dp, link.multiplier, 1.0, link.node0, link.node1, F, DF);
       link.flow = link.flow0 = F[0];
     }
   }
@@ -376,7 +377,7 @@ private:
     size_t i = 0;
     for (auto& link : links) {
       if (link.node0.variable) {
-        int nf = link.element.calculate(false, link.delta_p, link.multiplier, link.control, link.node0, link.node1, F, DF);
+        int nf = link.element.calculate(link.delta_p, link.multiplier, link.control, link.node0, link.node1, F, DF);
         if (nf == 1) {
           skyline->diagonal(link.node0.index) += DF[0];
           sum[link.node0.index] += F[0];

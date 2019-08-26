@@ -1,4 +1,5 @@
 // Copyright (c) 2019, Alliance for Sustainable Energy, LLC
+// Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,36 +30,36 @@
 #include <vector>
 #include <random>
 #include <chrono>
-#include "properties.hpp"
 #include "element.hpp"
 
 float fast_rsqrt(float number)
 {
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
+  long i;
+  float x2, y;
+  const float threehalfs = 1.5F;
 
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long*)& y;                       // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);             // what the fuck? 
-	y = *(float*)& i;
-	y = y * (threehalfs - (x2 * y * y));   // 1st iteration
+  x2 = number * 0.5F;
+  y = number;
+  i = *(long*)& y;                       // evil floating point bit level hacking
+  i = 0x5f3759df - (i >> 1);             // what the fuck? 
+  y = *(float*)& i;
+  y = y * (threehalfs - (x2 * y * y));   // 1st iteration
 //	y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
 
-	return y;
+  return y;
 }
 
-double fast_rsqrt64(double number) {
-	uint64_t i;
-	double x2, y;
-	x2 = number * 0.5;
-	y = number;
-	i = *(uint64_t*)& y;
-	i = 0x5fe6eb50c7b537a9 - (i >> 1);
-	y = *(double*)& i;
-	y = y * (1.5 - (x2 * y * y));
-	return y;
+double fast_rsqrt64(double number)
+{
+  uint64_t i;
+  double x2, y;
+  x2 = number * 0.5;
+  y = number;
+  i = *(uint64_t*)& y;
+  i = 0x5fe6eb50c7b537a9 - (i >> 1);
+  y = *(double*)& i;
+  y = y * (1.5 - (x2 * y * y));
+  return y;
 }
 
 
@@ -91,28 +92,28 @@ int main(int argc, char* argv[])
   // Calculate with genericCrack0
   auto start0 = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < count; i++) {
-    result0[i] = 1.0/std::sqrt(pdrop[i]);
+    result0[i] = 1.0 / std::sqrt(pdrop[i]);
   }
   auto stop0 = std::chrono::high_resolution_clock::now();
 
   // Calculate with genericCrack
   auto start1 = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < count; i++) {
-	result1[i] = fast_rsqrt64(pdrop[i]);
+    result1[i] = fast_rsqrt64(pdrop[i]);
   }
   auto stop1 = std::chrono::high_resolution_clock::now();
 
-  
+
   auto duration0 = std::chrono::duration_cast<std::chrono::microseconds>(stop0 - start0);
   auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
 
   std::cout << "1.0/std::sqrt: " << duration0.count() << " microseconds" << std::endl;
   std::cout << " fast_rsqrt64: " << duration1.count() << " microseconds" << std::endl;
-  std::cout << double(duration0.count()- duration1.count()) / double(duration0.count()) << std::endl;
+  std::cout << double(duration0.count() - duration1.count()) / double(duration0.count()) << std::endl;
 
   double rel_errmax = 0.0;
   for (size_t i = 0; i < count; i++) {
-	  rel_errmax = std::max(rel_errmax, std::abs((result1[i] - result0[i])/result0[i]));
+    rel_errmax = std::max(rel_errmax, std::abs((result1[i] - result0[i]) / result0[i]));
   }
   std::cout << rel_errmax << std::endl;
 

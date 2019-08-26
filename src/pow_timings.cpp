@@ -98,7 +98,7 @@ double fast_sqrt64(double number)
 	return y;
 }
 
-double fast_pow64_065_local(double number)
+double fast_pow64_065(double number)
 {
 	uint64_t i;
 	double x2, y;

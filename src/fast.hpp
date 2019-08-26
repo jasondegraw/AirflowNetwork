@@ -1,4 +1,3 @@
-// Copyright (c) 2019, Alliance for Sustainable Energy, LLC
 // Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
@@ -26,23 +25,11 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef AIRFLOWNETWORK_MATERIAL_HPP
-#define AIRFLOWNETWORK_MATERIAL_HPP
+#ifndef AIRFLOWNETWORK_FAST_HPP
+#define AIRFLOWNETWORK_FAST_HPP
 
-#include <string>
-#include "properties.hpp"
+float fast_pow32(float number, float power);
+double fast_pow64(double number, double power);
+double fast_pow64_065(double number);
 
-namespace airflownetwork {
-
-struct Material
-{
-  Material(const std::string &name, double default_concentration=0.0) : name(name), default_concentration(default_concentration)
-  {}
-
-  const std::string name;
-  const double default_concentration;
-};
-
-}
-
-#endif // !AIRFLOWNETWORK_MATERIAL_HPP
+#endif

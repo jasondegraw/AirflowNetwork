@@ -1,14 +1,16 @@
 project(executable)
 
-set(srcs properties.cpp)
+set(srcs properties.cpp
+         fast.cpp)
 
 set(hdrs properties.hpp
+         fast.hpp
          filters.hpp
          node.hpp
          material.hpp
          model.hpp
          link.hpp
-		 eigen_transport.hpp
+         eigen_transport.hpp
          element.hpp
          powerlaw.hpp
          results.hpp

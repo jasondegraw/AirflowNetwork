@@ -1,4 +1,5 @@
 // Copyright (c) 2019, Alliance for Sustainable Energy, LLC
+// Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,6 +32,7 @@
 #include <string>
 #include <array>
 #include "properties.hpp"
+#include "fast.hpp"
 
 #define TOKELVIN(T) (T+273.15)
 
@@ -523,25 +525,6 @@ template<typename P> void generic_crack0(bool const laminar, // Initialization f
   return;
 }
 
-inline double fast_pow64_065(double number)
-{
-	uint64_t i;
-	double x2, y;
-	const double R{ 0.7 * 0x5fe6eb50c7b537a9 / 3.0 };
-	//x2 = number * number;
-	y = number;
-	i = *(uint64_t*)& y;
-	i = R + 0.65 * i;
-	y = *(double*)& i;
-	//y = 0.35 * y + 0.65 * number / (std::sqrt(y) * std::pow(y, 0.0384615384615385));
-	//y = 0.35 * y + 0.65 * number / std::sqrt(y);
-	//y = 0.35 * y + 0.65 * number / std::pow(y, 0.5384615384615385);
-	//y = 0.35 * y + 0.65 * number / y;
-	//y = 1.35 * y;
-	return y;
-}
-
-
 template<typename P> void generic_crack_065(bool const laminar, // Initialization flag.If true, use laminar relationship
 	double const coefficient,                                   // Flow coefficient
 	double const pdrop,                                         // Total pressure drop across a component (P1 - P2) [Pa]
@@ -637,8 +620,7 @@ template <typename P> struct Element
 
   const std::string name;
 
-  virtual int calculate(bool laminar,  // Initialization flag.If = 1, use laminar relationship
-    double pdrop,                      // Total pressure drop across a component (P1 - P2) [Pa]
+  virtual int calculate(double pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
     double multiplier,                 // Element multiplier
     double control,                    // Control signal
     const State<P>& propN,             // Node 1 properties
@@ -646,6 +628,44 @@ template <typename P> struct Element
     std::array<double, 2>& F,          // Airflow through the component [kg/s]
     std::array<double, 2>& DF          // Partial derivative:  DF/DP
   ) const = 0;
+
+  virtual int laminar_calculate(double pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                         // Element multiplier
+    double control,                            // Control signal
+    const State<P>& propN,                     // Node 1 properties
+    const State<P>& propM,                     // Node 2 properties
+    std::array<double, 2>& F,                  // Airflow through the component [kg/s]
+    std::array<double, 2>& DF                  // Partial derivative:  DF/DP
+  ) const = 0;
+
+  virtual int ep_calculate(bool laminar,  // Initialization flag.If = 1, use laminar relationship
+    double pdrop,                         // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                    // Element multiplier
+    double control,                       // Control signal
+    const State<P>& propN,                // Node 1 properties
+    const State<P>& propM,                // Node 2 properties
+    std::array<double, 2>& F,             // Airflow through the component [kg/s]
+    std::array<double, 2>& DF             // Partial derivative:  DF/DP
+  )
+  {
+    if (laminar) {
+      return calculate(pdrop, multiplier, control, propN, propM, F, DF);
+    } else {
+      return laminar_calculate(pdrop, multiplier, control, propN, propM, F, DF);
+    }
+  }
+
+  virtual int fast_calculate(double pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                      // Element multiplier
+    double control,                         // Control signal
+    const State<P>& propN,                  // Node 1 properties
+    const State<P>& propM,                  // Node 2 properties
+    std::array<double, 2>& F,               // Airflow through the component [kg/s]
+    std::array<double, 2>& DF               // Partial derivative:  DF/DP
+  )
+  {
+    return calculate(pdrop, multiplier, control, propN, propM, F, DF);
+  }
 
   virtual double linearize(double multiplier,  // Linkage multiplier
     const State<P>& propN,                     // Node 1 properties

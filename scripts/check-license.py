@@ -1,4 +1,5 @@
 # Copyright (c) 2019, Alliance for Sustainable Energy, LLC
+# Copyright (c) 2019, Jason W. DeGraw
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,6 +47,8 @@ epstart = '// EnergyPlus, Copyright (c) 1996-'
 afnstart = '// Copyright (c) 2019, Alliance for Sustainable Energy, LLC'
 # This one is not great, but whatever
 pystart = '# Copyright (c) 2019, Alliance for Sustainable Energy, LLC'
+# My line
+myline = 'Copyright (c) 2019, Jason W. DeGraw'
 
 found = 0
 not_found = []
@@ -56,11 +59,16 @@ for file in cpps + hpps:
     txt = fp.read()
     fp.close()
     total += 1
+    yes = True
     if not txt.startswith(epstart):
         if not txt.startswith(afnstart):
             not_found.append(file)
-            continue
-    found += 1
+            yes = False
+    if not myline in txt:
+        not_found.append(file)
+        yes = False
+    if yes:
+        found += 1
 
 print('Found %d C++ files with a license' % found)
 print('Found %d C++ files without a license' % len(not_found))
@@ -75,14 +83,19 @@ not_found = []
 total = 0
 
 for file in pys:
+    yes = True
     fp = open(file, 'r')
     txt = fp.read()
     fp.close()
     total += 1
     if not txt.startswith(pystart):
         not_found.append(file)
-        continue
-    found += 1
+        yes = False
+    if not myline in txt:
+        not_found.append(file)
+        yes = False
+    if yes:
+        found += 1
 
 print('Found %d Python files with a license' % found)
 print('Found %d Python files without a license' % len(not_found))
