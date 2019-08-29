@@ -191,7 +191,7 @@ TEST_CASE("Test the power law element", "[PowerLaw]")
   CHECK(DF[0] == Approx(.001 * std::sqrt(1.2041) / 0.0000181625));
   CHECK(DF[1] == 0.0);
 
-  powerlaw.ep_calculate(false, -dp, multiplier, control, state0, state1, F, DF);
+  powerlaw.ep_calculate(true, -dp, multiplier, control, state0, state1, F, DF);
   CHECK(F[0] == -.01 * std::sqrt(1.2041) / 0.0000181625);
   CHECK(F[1] == 0.0);
   CHECK(DF[0] == Approx(.001 * std::sqrt(1.2041) / 0.0000181625));
