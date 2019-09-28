@@ -31,3 +31,7 @@ add_executable(crack_timings ${hdrs} ${srcs} ${includes} crack_timings.cpp)
 add_executable(rsqrt_timings ${hdrs} ${srcs} ${includes} rsqrt_timings.cpp)
 
 add_executable(sqrt_timings ${hdrs} ${srcs} ${includes} sqrt_timings.cpp)
+
+add_executable(pow_timings ${hdrs} ${srcs} ${includes} pow_timings.cpp)
+
+add_executable(pow_plots fast.hpp fast.cpp pow_plots.cpp)

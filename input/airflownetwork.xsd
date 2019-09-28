@@ -11,6 +11,16 @@
                         <xs:documentation>Description of the model</xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="GlobalParameters" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Global parameters and defaults</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="WindParameters" type="afn:WindParametersType" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="Elements" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation>The set of all airflow elements used in the model</xs:documentation>
@@ -1056,6 +1066,19 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    <xs:complexType name="WindParametersType">
+        <xs:annotation>
+            <xs:documentation>Wind model parameters</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Speed" type="afn:SpeedQuantityType"/>
+            <xs:element name="Direction" type="afn:AngleQuantityType"/>
+            <xs:element name="ReferenceElevation" type="afn:LengthQuantityType"/>
+            <xs:element name="LocalTerrainConstant" type="afn:PositiveValueType"/>
+            <xs:element name="ProfileExponent" type="afn:NonNegativeValueType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Value Types -->
     <xs:simpleType name="PositiveUnityFractionType">
         <xs:annotation>
             <xs:documentation>A fractional value between zero and one</xs:documentation>
@@ -1101,6 +1124,15 @@
             <xs:enumeration value="m^3"/>
             <xs:enumeration value="cm^3"/>
             <xs:enumeration value="ft^3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="SpeedUnitsEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="m/s"/>
+            <xs:enumeration value="ft/s"/>
+            <xs:enumeration value="ft/min"/>
+            <xs:enumeration value="kph"/>
+            <xs:enumeration value="mph"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="AngleUnitsEnum">
@@ -1215,6 +1247,16 @@
         <xs:simpleContent>
             <xs:extension base="afn:NonNegativeValueType">
                 <xs:attribute name="units" type="afn:VolumeUnitsEnum" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="SpeedQuantityType">
+        <xs:annotation>
+            <xs:documentation>A speed quantity with specified units</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:double">
+                <xs:attribute name="units" type="afn:SpeedUnitsEnum" use="required"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

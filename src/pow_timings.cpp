@@ -30,91 +30,9 @@
 #include <vector>
 #include <random>
 #include <chrono>
-#include "properties.hpp"
-#include "element.hpp"
-
-float fast_rsqrt(float number)
-{
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
-
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long*)& y;                       // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);             // what the fuck? 
-	y = *(float*)& i;
-	y = y * (threehalfs - (x2 * y * y));   // 1st iteration
-//	y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
-
-	return y;
-}
-
-float fast_rrsqrt(float number)
-{
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
-
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long*)& y;                       // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);             // what the fuck? 
-	y = *(float*)& i;
-	y = y * (threehalfs - (x2 * y * y));   // 1st iteration
-//	y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
-
-	return 1.0 / y;
-}
-
-float fast_sqrt(float number)
-{
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
-
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long*)& y;                       // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);             // what the fuck? 
-	y = *(float*)& i;
-	y = y * (threehalfs - (x2 * y * y));   // 1st iteration
-//	y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
-
-	return y;
-}
-
-double fast_sqrt64(double number)
-{
-	uint64_t i;
-	double x2, y;
-	const double R{ 0x5fe6eb50c7b537a9 / 3.0 };
-	x2 = number * 0.5;
-	y = number;
-	i = *(uint64_t*)& y;
-	i = R + (i >> 1);
-	y = *(double*)& i;
-	y = 0.5 * y + x2 / y;
-	return y;
-}
-
-double fast_pow64_065(double number)
-{
-	uint64_t i;
-	double x2, y;
-	const double R{ 0.7 * 0x5fe6eb50c7b537a9 / 3.0 };
-	//x2 = number * number;
-	y = number;
-	i = *(uint64_t*)& y;
-	i = R + 0.65 * i;
-	y = *(double*)& i;
-	//y = 0.35 * y + 0.65 * number / (std::sqrt(y) * std::pow(y, 0.0384615384615385));
-	//y = 0.35 * y + 0.65 * number / std::sqrt(y);
-	//y = 0.35 * y + 0.65 * number / std::pow(y, 0.5384615384615385);
-	//y = 0.35 * y + 0.65 * number / y;
-	//y = 1.35 * y;
-	return y;
-}
+#include <array>
+#include <string>
+#include "fast.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -146,22 +64,21 @@ int main(int argc, char* argv[])
   auto start0 = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < count; i++) {
     //result0[i] = std::sqrt(pdrop[i]);
-	result0[i] = std::pow(pdrop[i], 0.5);
-	//result0[i] = std::pow(pdrop[i], 0.65);
+    result0[i] = std::pow(pdrop[i], 0.5);
+    //result0[i] = std::pow(pdrop[i], 0.65);
   }
   auto stop0 = std::chrono::high_resolution_clock::now();
 
   // Calculate with genericCrack
   auto start1 = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < count; i++) {
-	//result1[i] = fast_sqrt64(pdrop[i]);
-	//result1[i] = std::pow(pdrop[i], 0.5);
-	//result1[i] = fast_pow64_065(pdrop[i]);
-	result1[i] = std::sqrt(pdrop[i]);
+    //result1[i] = fast_sqrt64(pdrop[i]);
+    //result1[i] = std::pow(pdrop[i], 0.5);
+    //result1[i] = fast_pow64_065(pdrop[i]);
+    result1[i] = std::sqrt(pdrop[i]);
   }
   auto stop1 = std::chrono::high_resolution_clock::now();
 
-  
   auto duration0 = std::chrono::duration_cast<std::chrono::microseconds>(stop0 - start0);
   auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
 
@@ -171,7 +88,7 @@ int main(int argc, char* argv[])
 
   double rel_errmax = 0.0;
   for (size_t i = 0; i < count; i++) {
-	  rel_errmax = std::max(rel_errmax, std::abs((result1[i] - result0[i])/result0[i]));
+    rel_errmax = std::max(rel_errmax, std::abs((result1[i] - result0[i])/result0[i]));
   }
   std::cout << rel_errmax << std::endl;
 
