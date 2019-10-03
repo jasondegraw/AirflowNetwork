@@ -41,6 +41,7 @@
 #include "powerlaw.hpp"
 #include "pugixml.hpp"
 #include "skyline.hpp"
+#include "wind.hpp"
 
 namespace airflownetwork {
 
@@ -55,6 +56,12 @@ template <typename I, typename P> struct Model
   {
     bool success{ true };
     // Get the data from the XML
+    auto globals = root.child("GlobalParameters");
+    if (globals) {
+      success &= load_globals(globals);
+    } else {
+      default_globals();
+    }
     auto materials = root.child("Materials");
     if (materials) {
       success &= load_materials(materials);
@@ -394,6 +401,19 @@ private:
       ++i;
     }
 
+  }
+
+  bool load_globals(const pugi::xml_node& xml_materials)
+  {
+    // Right now support only the wind stuff
+    bool success{ true };
+
+    return success;
+  }
+
+  void default_globals()
+  {
+    wind_modifier = std::make_unique<WindModifier<double>>();
   }
 
   bool load_materials(const pugi::xml_node& xml_materials)
@@ -830,6 +850,8 @@ public:
 
   std::unique_ptr<skyline::SymmetricMatrix<I, double, std::vector>> skyline;
   double tolerance;
+
+  std::unique_ptr<WindModifier<double>> wind_modifier;
 
 private:
   std::unique_ptr<std::ofstream> m_pressure_output;

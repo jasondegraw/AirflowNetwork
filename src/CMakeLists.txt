@@ -15,7 +15,8 @@ set(hdrs properties.hpp
          powerlaw.hpp
          results.hpp
          simpleopening.hpp
-         transport.hpp)
+         transport.hpp
+         wind.hpp)
 
 # Skyline
 set(includes ../dependencies/skyline/include/skyline.hpp)

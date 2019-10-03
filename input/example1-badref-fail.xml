@@ -24,23 +24,23 @@ p_five = 101325.0 Pa
   </Elements>
   <Nodes>
     <Node ID="one">
-      <PressureHandling>Fixed</PressureHandling>
+      <PressureHandling><Fixed units="Pag">200.0</Fixed></PressureHandling>
       <DefaultState>
         <Temperature units="K">293.15</Temperature>
-        <Pressure units="Pa">101525.0</Pressure>
+        <Pressure units="Pa">101325.0</Pressure>
       </DefaultState>
     </Node>
     <Node ID="two">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
     </Node>
     <Node ID="three">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
     </Node>
     <Node ID="four">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
     </Node>
     <Node ID="five">
-      <PressureHandling>Fixed</PressureHandling>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <DefaultState>
         <Temperature units="K">293.15</Temperature>
         <Pressure units="Pa">101325.0</Pressure>
