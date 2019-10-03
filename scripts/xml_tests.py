@@ -1,4 +1,3 @@
-# Copyright (c) 2019, Alliance for Sustainable Energy, LLC
 # Copyright (c) 2019, Jason W. DeGraw
 # All rights reserved.
 #
@@ -27,13 +26,58 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-class Loader:
-    def __init__(self, model):
-        self.model = model
-        self.json = {'errors':[], 'warnings':[]}
-    def error(self, mesg):
-        self.json['errors'].append(mesg)
-    def warning(self, mesg):
-        self.json['warnings'].append(mesg)
-    def translate(self):
-        return None
+import unittest
+import warnings
+import glob
+import os
+from lxml import etree
+from io import BytesIO, StringIO
+
+schema_file = '../input/AirflowNetwork.xsd'
+tree = etree.parse(schema_file)
+schema = etree.XMLSchema(tree)
+
+
+def validate(filename, schema, instance):
+    try:
+        schema.assertValid(instance)
+    except etree.DocumentInvalid as exc:
+        return filename + ': ' + str(exc)
+    return ''
+
+
+pass_files = []
+fail_files = []
+for file in glob.glob('../input/*.xml'):
+    if file.endswith('-fail.xml'):
+        fail_files.append(file)
+    else:
+        pass_files.append(file)
+
+
+failure_table = {'example1-badref-fail.xml' : "No match found for key-sequence ['three-four'] of keyref '{http://github.com/jasondegraw/AirflowNetwork}NodeKeyRef'., line 70"
+                }
+
+
+class ValidateExampleFiles(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_pass_files(self):
+        for file in pass_files:
+            warnings.simplefilter("ignore")
+            data = etree.parse(file)
+            self.assertEqual(validate(file, schema, data), '')
+
+    def test_fail_files(self):
+        for file in fail_files:
+            warnings.simplefilter("ignore")
+            data = etree.parse(file)
+            result = validate(file, schema, data)
+            self.assertTrue(os.path.basename(file) in failure_table, msg=file)
+            self.assertTrue(failure_table[os.path.basename(file)] in result)
+
+
+if __name__ == '__main__':
+    unittest.main()
+

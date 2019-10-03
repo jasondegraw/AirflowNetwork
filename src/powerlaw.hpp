@@ -2,7 +2,9 @@
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
-// contributors. All rights reserved.
+// contributors.
+// Copyright (c) 2019, Jason W. DeGraw
+// All rights reserved.
 //
 // NOTICE: This Software was developed under funding from the U.S. Department of Energy and the
 // U.S. Government consequently retains certain rights. As such, the U.S. Government has been
@@ -53,7 +55,7 @@ namespace airflownetwork {
 
 template <typename P> struct PowerLaw : public Element<P> // Surface crack component
 {
-  
+
   const double coefficient;  // Air Mass Flow Coefficient [kg/s at 1Pa]
   const double laminar_coefficient;  // "Laminar" Air Mass Flow Coefficient [kg/s at 1Pa]
   const double exponent;     // Air Mass Flow exponent [dimensionless]
@@ -61,17 +63,16 @@ template <typename P> struct PowerLaw : public Element<P> // Surface crack compo
   const double referenceT;   // Reference temperature for crack data
   const double referenceW;   // Reference humidity ratio for crack data
 
-  PowerLaw(const std::string &name, double coefficient, double laminar_coefficient, double exponent=0.65, double referenceP=101325.0, double referenceT=20.0,
-    double referenceW=0.0) : Element<P>(name), coefficient(validate_coefficient(coefficient)), laminar_coefficient(validate_coefficient(laminar_coefficient)), 
-    exponent(validate_exponent(exponent,0.65)), referenceP(validate_pressure(referenceP, 101325.0)), referenceT(validate_pressure(referenceT, 20.0)),
+  PowerLaw(const std::string& name, double coefficient, double laminar_coefficient, double exponent = 0.65, double referenceP = 101325.0, double referenceT = 20.0,
+    double referenceW = 0.0) : Element<P>(name), coefficient(validate_coefficient(coefficient)), laminar_coefficient(validate_coefficient(laminar_coefficient)),
+    exponent(validate_exponent(exponent, 0.65)), referenceP(validate_pressure(referenceP, 101325.0)), referenceT(validate_pressure(referenceT, 20.0)),
     referenceW(validate_pressure(referenceW, 0.0))
   {
     m_viscz_norm = P::viscosity(referenceT);
     m_rhoz_norm = P::density(referenceP, referenceT, referenceW);
   }
 
-  virtual int calculate(bool const laminar,  // Initialization flag.If = 1, use laminar relationship
-    double const pdrop,                      // Total pressure drop across a component (P1 - P2) [Pa]
+  virtual int calculate(double const pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
     double multiplier,                       // Element multiplier
     double control,                          // Control signal
     const State<P>& propN,                   // Node 1 properties
@@ -117,13 +118,144 @@ template <typename P> struct PowerLaw : public Element<P> // Surface crack compo
     }
 
     double coef = coefficient * control * multiplier / upwind_sqrt_density;
-    
+
     // Laminar calculation
     double RhoCor{ TOKELVIN(upwind_temperature) / TOKELVIN(Tave) };
     double Ctl{ std::pow(m_rhoz_norm / upwind_density / RhoCor, exponent - 1.0) * std::pow(m_viscz_norm / VisAve, 2.0 * exponent - 1.0) };
     double CDM{ coef * upwind_density / upwind_viscosity * Ctl };
     double FL{ CDM * pdrop };
-    double FT;
+    double abs_FT;
+
+    // Turbulent flow.
+    if (exponent == 0.5) {
+      abs_FT = coef * upwind_sqrt_density * std::sqrt(abs_pdrop) * Ctl;
+    } else {
+      abs_FT = coef * upwind_sqrt_density * std::pow(abs_pdrop, exponent) * Ctl;
+    }
+    // Select laminar or turbulent flow.
+    if (std::abs(FL) <= abs_FT) {
+      F[0] = FL;
+      DF[0] = CDM;
+    } else {
+      F[0] = sign * abs_FT;
+      DF[0] = F[0] * exponent / pdrop;
+    }
+
+    return 1;
+  }
+
+  virtual int laminar_calculate(double const pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                               // Element multiplier
+    double control,                                  // Control signal
+    const State<P> & propN,                           // Node 1 properties
+    const State<P> & propM,                           // Node 2 properties
+    std::array<double, 2> & F,                        // Airflow through the component [kg/s]
+    std::array<double, 2> & DF                        // Partial derivative:  DF/DP
+  ) const
+  {
+    // SUBROUTINE INFORMATION:
+    //       AUTHOR         George Walton
+    //       DATE WRITTEN   Extracted from AIRNET
+    //       MODIFIED       Lixing Gu, 2/1/04
+    //                      Revised the subroutine to meet E+ needs
+    //       MODIFIED       Lixing Gu, 6/8/05
+    //       RE-ENGINEERED  Jason DeGraw
+
+    // PURPOSE OF THIS SUBROUTINE:
+    // This subroutine solves airflow for a surface crack component
+
+    // METHODOLOGY EMPLOYED:
+    // na
+
+    // REFERENCES:
+    // na
+
+    double VisAve{ 0.5 * (propN.viscosity + propM.viscosity) };
+    double Tave{ 0.5 * (propN.temperature + propM.temperature) };
+
+    double sign{ 1.0 };
+    double upwind_temperature{ propN.temperature };
+    double upwind_density{ propN.density };
+    double upwind_viscosity{ propN.viscosity };
+    double upwind_sqrt_density{ propN.sqrt_density };
+    double abs_pdrop = pdrop;
+
+    if (pdrop < 0.0) {
+      sign = -1.0;
+      upwind_temperature = propM.temperature;
+      upwind_density = propM.density;
+      upwind_viscosity = propM.viscosity;
+      upwind_sqrt_density = propM.sqrt_density;
+      abs_pdrop = -pdrop;
+    }
+
+    double coef = coefficient * control * multiplier / upwind_sqrt_density;
+
+    // Laminar calculation
+    double RhoCor{ TOKELVIN(upwind_temperature) / TOKELVIN(Tave) };
+    double Ctl{ std::pow(m_rhoz_norm / upwind_density / RhoCor, exponent - 1.0) * std::pow(m_viscz_norm / VisAve, 2.0 * exponent - 1.0) };
+    double CDM{ coef * upwind_density / upwind_viscosity * Ctl };
+
+    F[0] = CDM * pdrop;
+    DF[0] = CDM;
+
+    return 1;
+  }
+
+  virtual int ep_calculate(bool const laminar,  // Initialization flag.If = 1, use laminar relationship
+    double const pdrop,                      // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                       // Element multiplier
+    double control,                          // Control signal
+    const State<P> & propN,                   // Node 1 properties
+    const State<P> & propM,                   // Node 2 properties
+    std::array<double, 2> & F,                // Airflow through the component [kg/s]
+    std::array<double, 2> & DF                // Partial derivative:  DF/DP
+  ) const
+  {
+    // SUBROUTINE INFORMATION:
+    //       AUTHOR         George Walton
+    //       DATE WRITTEN   Extracted from AIRNET
+    //       MODIFIED       Lixing Gu, 2/1/04
+    //                      Revised the subroutine to meet E+ needs
+    //       MODIFIED       Lixing Gu, 6/8/05
+    //       RE-ENGINEERED  Jason DeGraw
+
+    // PURPOSE OF THIS SUBROUTINE:
+    // This subroutine solves airflow for a surface crack component
+
+    // METHODOLOGY EMPLOYED:
+    // na
+
+    // REFERENCES:
+    // na
+
+    double VisAve{ 0.5 * (propN.viscosity + propM.viscosity) };
+    double Tave{ 0.5 * (propN.temperature + propM.temperature) };
+
+    double sign{ 1.0 };
+    double upwind_temperature{ propN.temperature };
+    double upwind_density{ propN.density };
+    double upwind_viscosity{ propN.viscosity };
+    double upwind_sqrt_density{ propN.sqrt_density };
+    double abs_pdrop = pdrop;
+
+    if (pdrop < 0.0) {
+      sign = -1.0;
+      upwind_temperature = propM.temperature;
+      upwind_density = propM.density;
+      upwind_viscosity = propM.viscosity;
+      upwind_sqrt_density = propM.sqrt_density;
+      abs_pdrop = -pdrop;
+    }
+
+    double coef = coefficient * control * multiplier / upwind_sqrt_density;
+
+    // Laminar calculation
+    double RhoCor{ TOKELVIN(upwind_temperature) / TOKELVIN(Tave) };
+    double Ctl{ std::pow(m_rhoz_norm / upwind_density / RhoCor, exponent - 1.0) * std::pow(m_viscz_norm / VisAve, 2.0 * exponent - 1.0) };
+    double CDM{ coef * upwind_density / upwind_viscosity * Ctl };
+    double FL{ CDM * pdrop };
+    double abs_FT;
 
     if (laminar) {
       DF[0] = CDM;
@@ -131,25 +263,96 @@ template <typename P> struct PowerLaw : public Element<P> // Surface crack compo
     } else {
       // Turbulent flow.
       if (exponent == 0.5) {
-        FT = sign * coef * upwind_sqrt_density * std::sqrt(abs_pdrop) * Ctl;
+        abs_FT = coef * upwind_sqrt_density * std::sqrt(abs_pdrop) * Ctl;
       } else {
-        FT = sign * coef * upwind_sqrt_density * std::pow(abs_pdrop, exponent) * Ctl;
+        abs_FT = coef * upwind_sqrt_density * std::pow(abs_pdrop, exponent) * Ctl;
       }
       // Select laminar or turbulent flow.
-      if (std::abs(FL) <= std::abs(FT)) {
+      if (std::abs(FL) <= abs_FT) {
         F[0] = FL;
         DF[0] = CDM;
       } else {
-        F[0] = FT;
-        DF[0] = FT * exponent / pdrop;
+        F[0] = sign * abs_FT;
+        DF[0] = F[0] * exponent / pdrop;
       }
     }
-  return 1;
-}
+    return 1;
+  }
+
+  virtual int fast_calculate(double const pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                            // Element multiplier
+    double control,                               // Control signal
+    const State<P> & propN,                        // Node 1 properties
+    const State<P> & propM,                        // Node 2 properties
+    std::array<double, 2> & F,                     // Airflow through the component [kg/s]
+    std::array<double, 2> & DF                     // Partial derivative:  DF/DP
+  ) const
+  {
+    // SUBROUTINE INFORMATION:
+    //       AUTHOR         George Walton
+    //       DATE WRITTEN   Extracted from AIRNET
+    //       MODIFIED       Lixing Gu, 2/1/04
+    //                      Revised the subroutine to meet E+ needs
+    //       MODIFIED       Lixing Gu, 6/8/05
+    //       RE-ENGINEERED  Jason DeGraw
+
+    // PURPOSE OF THIS SUBROUTINE:
+    // This subroutine solves airflow for a surface crack component
+
+    // METHODOLOGY EMPLOYED:
+    // na
+
+    // REFERENCES:
+    // na
+
+    double VisAve{ 0.5 * (propN.viscosity + propM.viscosity) };
+    double Tave{ 0.5 * (propN.temperature + propM.temperature) };
+
+    double sign{ 1.0 };
+    double upwind_temperature{ propN.temperature };
+    double upwind_density{ propN.density };
+    double upwind_viscosity{ propN.viscosity };
+    double upwind_sqrt_density{ propN.sqrt_density };
+    double abs_pdrop = pdrop;
+
+    if (pdrop < 0.0) {
+      sign = -1.0;
+      upwind_temperature = propM.temperature;
+      upwind_density = propM.density;
+      upwind_viscosity = propM.viscosity;
+      upwind_sqrt_density = propM.sqrt_density;
+      abs_pdrop = -pdrop;
+    }
+
+    double coef = coefficient * control * multiplier / upwind_sqrt_density;
+
+    // Laminar calculation
+    double RhoCor{ TOKELVIN(upwind_temperature) / TOKELVIN(Tave) };
+    double Ctl{ std::pow(m_rhoz_norm / upwind_density / RhoCor, exponent - 1.0) * std::pow(m_viscz_norm / VisAve, 2.0 * exponent - 1.0) };
+    double CDM{ coef * upwind_density / upwind_viscosity * Ctl };
+    double FL{ CDM * pdrop };
+    double abs_FT;
+
+    // Turbulent flow.
+    if (exponent == 0.5) {
+      abs_FT = coef * upwind_sqrt_density * std::sqrt(abs_pdrop) * Ctl;
+    } else {
+      abs_FT = coef * upwind_sqrt_density * fast_pow64(abs_pdrop, exponent) * Ctl;
+    }
+    // Select laminar or turbulent flow.
+    if (std::abs(FL) <= abs_FT) {
+      F[0] = FL;
+      DF[0] = CDM;
+    } else {
+      F[0] = sign * abs_FT;
+      DF[0] = F[0] * exponent / pdrop;
+    }
+    return 1;
+  }
 
   double linearize(double multiplier,  // Linkage multiplier
-    const State<P>& propN,             // Node 1 properties
-    const State<P>& propM              // Node 2 properties
+    const State<P> & propN,             // Node 1 properties
+    const State<P> & propM              // Node 2 properties
   ) const
   {
     // SUBROUTINE INFORMATION:
@@ -182,8 +385,8 @@ template <typename P> struct PowerLaw : public Element<P> // Surface crack compo
   }
 
 private:
-double m_viscz_norm;
-double m_rhoz_norm;
+  double m_viscz_norm;
+  double m_rhoz_norm;
 
 };
 
@@ -198,7 +401,8 @@ template <typename P> struct ContamXPowerLaw : public Element<P> // Surface crac
   // Default Constructor
   ContamXPowerLaw(const std::string& name, double coefficient, double laminar_coefficient, double exponent = 0.65) : Element<P>(name), coefficient(validate_coefficient(coefficient)),
     laminar_coefficient(validate_coefficient(laminar_coefficient)), exponent(validate_exponent(exponent, 0.65))
-  {}
+  {
+  }
 
   static double adjustment(double density, double dynamic_viscosity, double exponent)
   {
@@ -214,14 +418,102 @@ template <typename P> struct ContamXPowerLaw : public Element<P> // Surface crac
     return std::pow(a, x);
   }
 
-  virtual int calculate(bool const laminar,  // Initialization flag.If = 1, use laminar relationship
-    double const pdrop,                      // Total pressure drop across a component (P1 - P2) [Pa]
+  virtual int calculate(double const pdrop,   // Total pressure drop across a component (P1 - P2) [Pa]
     double multiplier,                       // Element multiplier
     double control,                          // Control signal
-    const State<P>& propN,                   // Node 1 properties
-    const State<P>& propM,                   // Node 2 properties
-    std::array<double, 2>& F,                // Airflow through the component [kg/s]
-    std::array<double, 2>& DF                // Partial derivative:  DF/DP
+    const State<P> & propN,                   // Node 1 properties
+    const State<P> & propM,                   // Node 2 properties
+    std::array<double, 2> & F,                // Airflow through the component [kg/s]
+    std::array<double, 2> & DF                // Partial derivative:  DF/DP
+  ) const
+  {
+
+    double mult{ multiplier * control };
+
+    double sign{ 1.0 };
+    double upwind_temperature{ propN.temperature };
+    double upwind_density{ propN.density };
+    double upwind_viscosity{ propN.viscosity };
+    double upwind_sqrt_density{ propN.sqrt_density };
+    double abs_pdrop = pdrop;
+
+    if (pdrop < 0.0) {
+      sign = -1.0;
+      upwind_temperature = propM.temperature;
+      upwind_density = propM.density;
+      upwind_viscosity = propM.viscosity;
+      upwind_sqrt_density = propM.sqrt_density;
+      abs_pdrop = -pdrop;
+    }
+    double dvisc = upwind_viscosity / upwind_density;
+
+    // Laminar calculation
+    double cdm{ laminar_coefficient * mult * dvisc };
+    double FL{ cdm * pdrop };
+
+    // Turbulent flow.
+    double Tadj = adjustment(upwind_density, dvisc, exponent);
+    double abs_FT = Tadj * coefficient * mult * std::sqrt(0.5 * (propN.density + propM.density)) * pow(abs_pdrop, exponent);
+
+    // Select laminar or turbulent flow.
+    if (std::abs(FL) <= abs_FT) {
+      F[0] = FL;
+      DF[0] = cdm;
+    } else {
+      F[0] = sign * abs_FT;
+      DF[0] = F[0] * exponent / pdrop;
+    }
+ 
+    return 1;
+  }
+
+  virtual int laminar_calculate(double const pdrop,  // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                               // Element multiplier
+    double control,                                  // Control signal
+    const State<P>& propN,                           // Node 1 properties
+    const State<P>& propM,                           // Node 2 properties
+    std::array<double, 2>& F,                        // Airflow through the component [kg/s]
+    std::array<double, 2>& DF                        // Partial derivative:  DF/DP
+  ) const
+  {
+
+    double mult{ multiplier * control };
+
+    double sign{ 1.0 };
+    double upwind_temperature{ propN.temperature };
+    double upwind_density{ propN.density };
+    double upwind_viscosity{ propN.viscosity };
+    double upwind_sqrt_density{ propN.sqrt_density };
+    double abs_pdrop = pdrop;
+
+    if (pdrop < 0.0) {
+      sign = -1.0;
+      upwind_temperature = propM.temperature;
+      upwind_density = propM.density;
+      upwind_viscosity = propM.viscosity;
+      upwind_sqrt_density = propM.sqrt_density;
+      abs_pdrop = -pdrop;
+    }
+    double dvisc = upwind_viscosity / upwind_density;
+
+    // Laminar calculation
+    double cdm{ laminar_coefficient * mult * dvisc };
+    double FL{ cdm * pdrop };
+
+    DF[0] = cdm;
+    F[0] = FL;
+
+    return 1;
+  }
+
+  virtual int ep_calculate(bool const laminar,  // Initialization flag.If = 1, use laminar relationship
+    double const pdrop,                         // Total pressure drop across a component (P1 - P2) [Pa]
+    double multiplier,                          // Element multiplier
+    double control,                             // Control signal
+    const State<P>& propN,                      // Node 1 properties
+    const State<P>& propM,                      // Node 2 properties
+    std::array<double, 2>& F,                   // Airflow through the component [kg/s]
+    std::array<double, 2>& DF                   // Partial derivative:  DF/DP
   ) const
   {
 
@@ -254,23 +546,23 @@ template <typename P> struct ContamXPowerLaw : public Element<P> // Surface crac
     } else {
       // Turbulent flow.
       double Tadj = adjustment(upwind_density, dvisc, exponent);
-      double FT = sign * Tadj * coefficient * mult * std::sqrt(0.5 * (propN.density + propM.density)) * pow(abs_pdrop, exponent);
+      double abs_FT = Tadj * coefficient * mult * std::sqrt(0.5 * (propN.density + propM.density)) * pow(abs_pdrop, exponent);
 
       // Select laminar or turbulent flow.
-      if (std::abs(FL) <= std::abs(FT)) {
+      if (std::abs(FL) <= abs_FT) {
         F[0] = FL;
         DF[0] = cdm;
       } else {
-        F[0] = FT;
-        DF[0] = FT * exponent / pdrop;
+        F[0] = sign * abs_FT;
+        DF[0] = F[0] * exponent / pdrop;
       }
     }
     return 1;
   }
 
   double linearize(double multiplier,  // Linkage multiplier
-    const State<P>& propN,             // Node 1 properties
-    const State<P>& propM              // Node 2 properties
+    const State<P> & propN,             // Node 1 properties
+    const State<P> & propM              // Node 2 properties
   ) const
   {
 

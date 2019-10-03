@@ -26,31 +26,49 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef AIRFLOWNETWORK_WIND_HPP
+#define AIRFLOWNETWORK_WIND_HPP
 
 #include <string>
+#include <cmath>
 #include "properties.hpp"
 
 namespace airflownetwork {
 
-enum class NodeType {Simulated, Fixed, Calculated};
-
-template <typename I, typename P> struct Node : State<P>
+template <typename T> struct WindModifier
 {
-  Node(const std::string &name, double height=0.0, double pressure=P::pressure_0, double temperature = P::temperature_0,
-    double humidity_ratio=P::humidity_ratio_0) : State<P>(pressure, temperature, humidity_ratio), name(name), height(height),
-    variable(false), index(0), wind_pressure_modifier(0.0)
+  virtual T modifier()
+  {
+    return 0.0;
+  }
+};
+
+template <typename T> struct BoundaryLayerModifier : public WindModifier<T>
+{
+  BoundaryLayerModifier(T H, T a, T delta, T H_met = 10.0, T a_met = 0.14, T delta_met = 270.0) : H(H), a(a), delta(H_met),
+    H_met(H_met), a_met(a_met), delta_met(delta_met)
   {}
 
-  const std::string name;
-  double height;
-  bool variable;
-  I index;
-  double wind_pressure_modifier;
-  std::vector<double> concentrations;
+  BoundaryLayerModifier from_A_0(T A_0, T a, T delta, T H_met = 10.0, T a_met = 0.14, T delta_met = 270.0)
+  {
+    delta = H_met / std::pow(A_0 / std::pow(delta_met / H_met, a_met), 1.0 / a);
+    return BoundaryLayerModifier(H, a, delta, H_met, a_met, delta_met);
+  }
+
+  T modifier()
+  {
+    T value = std::pow(delta_met / H_met, a_met) * std::pow(H / delta, a);
+    return value*value;
+  }
+
+  T H; // Local wall height
+  T a; // Local exponent
+  T delta; // Local boundary layer thickeness
+  T H_met; // Station height
+  T a_met; // Station exponent
+  T delta_met; // Station boundary layer thickeness
 };
 
 }
 
-#endif // !NODE_HPP
+#endif // !AIRFLOWNETWORK_WIND_HPP

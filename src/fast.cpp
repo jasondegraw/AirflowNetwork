@@ -1,4 +1,3 @@
-// Copyright (c) 2019, Alliance for Sustainable Energy, LLC
 // Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
@@ -26,31 +25,32 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef NODE_HPP
-#define NODE_HPP
+#include <stdint.h>
+#include "fast.hpp"
 
-#include <string>
-#include "properties.hpp"
 
-namespace airflownetwork {
-
-enum class NodeType {Simulated, Fixed, Calculated};
-
-template <typename I, typename P> struct Node : State<P>
+double fast_pow64(double number, double power)
 {
-  Node(const std::string &name, double height=0.0, double pressure=P::pressure_0, double temperature = P::temperature_0,
-    double humidity_ratio=P::humidity_ratio_0) : State<P>(pressure, temperature, humidity_ratio), name(name), height(height),
-    variable(false), index(0), wind_pressure_modifier(0.0)
-  {}
-
-  const std::string name;
-  double height;
-  bool variable;
-  I index;
-  double wind_pressure_modifier;
-  std::vector<double> concentrations;
-};
-
+  uint64_t i;
+  //double R{ (1.0-power) * 2.0 * 0x5fe6eb50c7b537a9 / 3.0 };
+  double R{ (1.0 - power) * 0x3FEF478B2FCE251A };
+  i = *(uint64_t*)& number;
+  i = R + power * i;
+  double y = *(double*)& i;
+  return y;
 }
 
-#endif // !NODE_HPP
+double fast_pow64_065(double number)
+{
+  uint64_t i;
+  double R{ 0.7 * 0x5fe6eb50c7b537a9 / 3.0 };
+  i = *(uint64_t*)& number;
+  i = R + 0.65 * i;
+  double y = *(double*)& i;
+  //y = 0.35 * y + 0.65 * number / (std::sqrt(y) * std::pow(y, 0.0384615384615385));
+  //y = 0.35 * y + 0.65 * number / std::sqrt(y);
+  //y = 0.35 * y + 0.65 * number / std::pow(y, 0.5384615384615385);
+  //y = 0.35 * y + 0.65 * number / y;
+  //y = 1.35 * y;
+  return y;
+}

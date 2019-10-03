@@ -30,13 +30,14 @@
 #include <vector>
 #include <random>
 #include <chrono>
-#include "properties.hpp"
-#include "element.hpp"
+#include <array>
+#include <string>
+#include "fast.hpp"
 
 int main(int argc, char* argv[])
 {
   if (argc < 2) {
-    std::cerr << "usage: crack_timings <number>" << std::endl;
+    std::cerr << "usage: sqrt_timings <number>" << std::endl;
     return 1;
   }
 
@@ -46,53 +47,50 @@ int main(int argc, char* argv[])
   int count = std::stoi(argv[1]);
 
   std::vector<double> pdrop(count);
-  std::vector<double> flow(count);
-  std::vector<double> flow0(count);
-  std::vector<airflownetwork::State<airflownetwork::properties::EnergyPlus>> M(count);
-  std::vector<airflownetwork::State<airflownetwork::properties::EnergyPlus>> N(count);
+  std::vector<double> result0(count);
+  std::vector<double> result1(count);
 
   std::seed_seq seed{ 1, 2, 3, 4, 5, 6, 7, 8 };
   std::mt19937 rng(seed);
 
-  std::uniform_real_distribution<double> pressure_drop(-50.0, 50.0);
-  std::uniform_real_distribution<double> pressure(101325.0-50.0, 101325+50.0);
-  std::uniform_real_distribution<double> temperature(101325.0 - 50.0, 101325.0 + 50.0);
+  std::uniform_real_distribution<double> pressure_drop(1.0e-6, 50.0);
 
   // Set up the states
-  for (size_t i = 0; i < M.size(); i++) {
+  for (size_t i = 0; i < count; i++) {
     pdrop[i] = pressure_drop(rng);
-    M[i].pressure = pressure(rng);
-    M[i].temperature = temperature(rng);
-    M[i].update();
-    N[i].pressure = pressure(rng);
-    N[i].temperature = temperature(rng);
-    N[i].update();
   }
 
   // Calculate with genericCrack0
   auto start0 = std::chrono::high_resolution_clock::now();
-  for (size_t i = 0; i < M.size(); i++) {
-    airflownetwork::generic_crack0(false, 0.0001, 0.65, pdrop[i], M[i], N[i], F, DF);
-    flow0[i] = F[0];
+  for (size_t i = 0; i < count; i++) {
+    //result0[i] = std::sqrt(pdrop[i]);
+    result0[i] = std::pow(pdrop[i], 0.5);
+    //result0[i] = std::pow(pdrop[i], 0.65);
   }
   auto stop0 = std::chrono::high_resolution_clock::now();
 
   // Calculate with genericCrack
-  auto start = std::chrono::high_resolution_clock::now();
-  for (size_t i = 0; i < M.size(); i++) {
-    //airflownetwork::generic_crack(false, 0.0001, 0.65, pdrop[i], M[i], N[i], F, DF);
-	airflownetwork::generic_crack_065(false, 0.0001, pdrop[i], M[i], N[i], F, DF);
-    flow[i] = F[0];
+  auto start1 = std::chrono::high_resolution_clock::now();
+  for (size_t i = 0; i < count; i++) {
+    //result1[i] = fast_sqrt64(pdrop[i]);
+    //result1[i] = std::pow(pdrop[i], 0.5);
+    //result1[i] = fast_pow64_065(pdrop[i]);
+    result1[i] = std::sqrt(pdrop[i]);
   }
-  auto stop = std::chrono::high_resolution_clock::now();
+  auto stop1 = std::chrono::high_resolution_clock::now();
 
-  
   auto duration0 = std::chrono::duration_cast<std::chrono::microseconds>(stop0 - start0);
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
 
-  std::cout << "genericCrack0: " << duration0.count() << " microseconds" << std::endl;
-  std::cout << " genericCrack: " << duration.count() << " microseconds" << std::endl;
-  std::cout << double(duration0.count()- duration.count()) / double(duration0.count()) << std::endl;
+  std::cout << "std::sqrt: " << duration0.count() << " microseconds" << std::endl;
+  std::cout << "fast_sqrt: " << duration1.count() << " microseconds" << std::endl;
+  std::cout << double(duration0.count()- duration1.count()) / double(duration0.count()) << std::endl;
+
+  double rel_errmax = 0.0;
+  for (size_t i = 0; i < count; i++) {
+    rel_errmax = std::max(rel_errmax, std::abs((result1[i] - result0[i])/result0[i]));
+  }
+  std::cout << rel_errmax << std::endl;
 
   return 0;
 }

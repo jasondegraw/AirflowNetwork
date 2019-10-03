@@ -10,15 +10,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00906345</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00906345</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="ExtWallLeaky">
       <Formulation>CONTAM</Formulation>
@@ -29,15 +31,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.016254</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.016254</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="ExtWallTight">
       <Formulation>CONTAM</Formulation>
@@ -48,15 +52,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00187289</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00187289</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="FloorAvg">
       <Formulation>CONTAM</Formulation>
@@ -67,15 +73,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.0181269</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.0181269</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="FloorLeaky">
       <Formulation>CONTAM</Formulation>
@@ -86,15 +94,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.032508</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.032508</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="FloorTight">
       <Formulation>CONTAM</Formulation>
@@ -105,15 +115,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00374578</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00374578</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="IntWallAvg">
       <Formulation>CONTAM</Formulation>
@@ -124,15 +136,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.0181269</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.0181269</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="IntWallLeaky">
       <Formulation>CONTAM</Formulation>
@@ -143,15 +157,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.032508</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.032508</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="IntWallTight">
       <Formulation>CONTAM</Formulation>
@@ -162,15 +178,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00374578</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00374578</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="RoofAvg">
       <Formulation>CONTAM</Formulation>
@@ -181,15 +199,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00906345</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00906345</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="RoofLeaky">
       <Formulation>CONTAM</Formulation>
@@ -200,15 +220,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.016254</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.016254</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
     <PowerLaw ID="RoofTight">
       <Formulation>CONTAM</Formulation>
@@ -219,15 +241,17 @@
       <Transition>
         <ByMinimum/>
       </Transition>
-      <CoefficientRelationship>
+      <TurbulentCoefficientCalculation>
+        <TestPoints>
+          <TestPoint>
+            <MassFlowRate units="kg/s">0.00187289</MassFlowRate>
+            <PressureDifference units="Pa">75</PressureDifference>
+          </TestPoint>
+        </TestPoints>
+      </TurbulentCoefficientCalculation>
+      <LaminarCoefficientCalculation>
         <TransitionReynoldsNumber>30</TransitionReynoldsNumber>
-      </CoefficientRelationship>
-      <Data>
-        <DataPoint>
-          <MassFlowRate units="kg/s">0.00187289</MassFlowRate>
-          <PressureDifference units="Pa">75</PressureDifference>
-        </DataPoint>
-      </Data>
+      </LaminarCoefficientCalculation>
     </PowerLaw>
   </Elements>
   <Materials>
@@ -259,7 +283,7 @@
   </Levels>
   <Nodes>
     <Node ID="library_L2">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">408</SpecifiedVolume>
       </Volume>
@@ -271,7 +295,7 @@
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="office_2_L2">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">210</SpecifiedVolume>
       </Volume>
@@ -283,7 +307,7 @@
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="hallway_L2">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">90</SpecifiedVolume>
       </Volume>
@@ -295,7 +319,7 @@
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="office_1_L2">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">210</SpecifiedVolume>
       </Volume>
@@ -307,7 +331,7 @@
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="library_L1">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">408</SpecifiedVolume>
       </Volume>
@@ -319,7 +343,7 @@
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="office_2_L1">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">210</SpecifiedVolume>
       </Volume>
@@ -331,7 +355,7 @@
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="hallway_L1">
-      <PressureHandling>Simulated</PressureHandling>
+      <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">90</SpecifiedVolume>
       </Volume>
@@ -343,7 +367,7 @@
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="office_1_L1">
-      <PressureHandling>Simulated</PressureHandling>
+	    <PressureHandling><Simulated/></PressureHandling>
       <Volume>
         <SpecifiedVolume units="m^3">210</SpecifiedVolume>
       </Volume>
@@ -355,143 +379,83 @@
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_1">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-10</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-10.0</Fixed></PressureHandling>
       <LevelID IDref="L3"/>
     </Node>
     <Node ID="external_2">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-10</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-10.0</Fixed></PressureHandling>
       <LevelID IDref="L3"/>
     </Node>
     <Node ID="external_3">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-10</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-10.0</Fixed></PressureHandling>
       <LevelID IDref="L3"/>
     </Node>
     <Node ID="external_4">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-10</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-10.0</Fixed></PressureHandling>
       <LevelID IDref="L3"/>
     </Node>
     <Node ID="external_5">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">50.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_6">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">50.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_10">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_13">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_18">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_19">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_20">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_21">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L2"/>
     </Node>
     <Node ID="external_22">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">50.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_23">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">50.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_25">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_28">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_31">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">0</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">0.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_32">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_33">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
     <Node ID="external_34">
-      <PressureHandling>Fixed</PressureHandling>
-      <DefaultState>
-        <Pressure units="Pag">-50</Pressure>
-      </DefaultState>
+      <PressureHandling><Fixed units="Pag">-50.0</Fixed></PressureHandling>
       <LevelID IDref="L1"/>
     </Node>
   </Nodes>

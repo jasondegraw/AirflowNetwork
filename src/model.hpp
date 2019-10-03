@@ -1,4 +1,5 @@
 // Copyright (c) 2019, Alliance for Sustainable Energy, LLC
+// Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,6 +41,7 @@
 #include "powerlaw.hpp"
 #include "pugixml.hpp"
 #include "skyline.hpp"
+#include "wind.hpp"
 
 namespace airflownetwork {
 
@@ -54,6 +56,12 @@ template <typename I, typename P> struct Model
   {
     bool success{ true };
     // Get the data from the XML
+    auto globals = root.child("GlobalParameters");
+    if (globals) {
+      success &= load_globals(globals);
+    } else {
+      default_globals();
+    }
     auto materials = root.child("Materials");
     if (materials) {
       success &= load_materials(materials);
@@ -135,7 +143,7 @@ template <typename I, typename P> struct Model
     std::array<double, 2> F, DF;
     for (auto& link : links) {
       double dp = link.node0.pressure - link.node1.pressure;
-      link.element.calculate(false, dp, link.multiplier, 1.0, link.node0, link.node1, F, DF);
+      link.element.calculate(dp, link.multiplier, 1.0, link.node0, link.node1, F, DF);
       link.flow = link.flow0 = F[0];
     }
   }
@@ -376,7 +384,7 @@ private:
     size_t i = 0;
     for (auto& link : links) {
       if (link.node0.variable) {
-        int nf = link.element.calculate(false, link.delta_p, link.multiplier, link.control, link.node0, link.node1, F, DF);
+        int nf = link.element.calculate(link.delta_p, link.multiplier, link.control, link.node0, link.node1, F, DF);
         if (nf == 1) {
           skyline->diagonal(link.node0.index) += DF[0];
           sum[link.node0.index] += F[0];
@@ -393,6 +401,19 @@ private:
       ++i;
     }
 
+  }
+
+  bool load_globals(const pugi::xml_node& xml_materials)
+  {
+    // Right now support only the wind stuff
+    bool success{ true };
+
+    return success;
+  }
+
+  void default_globals()
+  {
+    wind_modifier = std::make_unique<WindModifier<double>>();
   }
 
   bool load_materials(const pugi::xml_node& xml_materials)
@@ -829,6 +850,8 @@ public:
 
   std::unique_ptr<skyline::SymmetricMatrix<I, double, std::vector>> skyline;
   double tolerance;
+
+  std::unique_ptr<WindModifier<double>> wind_modifier;
 
 private:
   std::unique_ptr<std::ofstream> m_pressure_output;

@@ -1,19 +1,22 @@
 project(executable)
 
-set(srcs properties.cpp)
+set(srcs properties.cpp
+         fast.cpp)
 
 set(hdrs properties.hpp
+         fast.hpp
          filters.hpp
          node.hpp
          material.hpp
          model.hpp
          link.hpp
-		 eigen_transport.hpp
+         eigen_transport.hpp
          element.hpp
          powerlaw.hpp
          results.hpp
          simpleopening.hpp
-         transport.hpp)
+         transport.hpp
+         wind.hpp)
 
 # Skyline
 set(includes ../dependencies/skyline/include/skyline.hpp)
@@ -25,3 +28,11 @@ add_executable(cxt ${hdrs} ${srcs} ${includes} cxt.cpp)
 target_link_libraries(cxt pugixml)
 
 add_executable(crack_timings ${hdrs} ${srcs} ${includes} crack_timings.cpp)
+
+add_executable(rsqrt_timings ${hdrs} ${srcs} ${includes} rsqrt_timings.cpp)
+
+add_executable(sqrt_timings ${hdrs} ${srcs} ${includes} sqrt_timings.cpp)
+
+add_executable(pow_timings ${hdrs} ${srcs} ${includes} pow_timings.cpp)
+
+add_executable(pow_plots fast.hpp fast.cpp pow_plots.cpp)

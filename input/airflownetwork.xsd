@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:afn="http://github.com/jasondegraw/AirflowNetwork" targetNamespace="http://github.com/jasondegraw/AirflowNetwork" elementFormDefault="qualified">
     <xs:annotation>
-        <xs:documentation>AirflowNetwork Schema - Version X.X.X (April 19, 2019)</xs:documentation>
+        <xs:documentation>AirflowNetwork Schema - Version X.X.X (September 28, 2019)</xs:documentation>
     </xs:annotation>
     <xs:element name="AirflowNetwork">
         <xs:complexType>
@@ -10,6 +10,16 @@
                     <xs:annotation>
                         <xs:documentation>Description of the model</xs:documentation>
                     </xs:annotation>
+                </xs:element>
+                <xs:element name="GlobalParameters" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Global parameters and defaults</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="WindParameters" type="afn:WindParametersType" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
                 </xs:element>
                 <xs:element name="Elements" minOccurs="0">
                     <xs:annotation>
@@ -70,6 +80,16 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="MassFlowSchedule" type="afn:MassFlowTimeSeriesType" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Tables" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The set of all tables in the model</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Table" type="afn:TableType" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -283,21 +303,58 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="Transition" type="afn:TransitionType"/>
-            <xs:element name="CoefficientRelationship" minOccurs="0">
+            <xs:element name="TurbulentCoefficientCalculation" minOccurs="0">
                 <xs:annotation>
-                    <xs:documentation>Specify how laminar and turbulent coefficents are related, if at all</xs:documentation>
+                    <xs:documentation>Data used in the calculation of the coefficients</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
                     <xs:choice>
-                        <xs:element name="TransitionReynoldsNumber">
+                        <xs:element name="TestPoints">
+                            <xs:annotation>
+                                <xs:documentation>Test points used to determine the model parameters</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="TestPoint" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:choice>
+                                                    <xs:element name="MassFlowRate" type="afn:MassFlowRateQuantityType"/>
+                                                    <xs:element name="VolumeFlowRate" type="afn:VolumeFlowRateQuantityType"/>
+                                                </xs:choice>
+                                                <xs:element name="PressureDifference" type="afn:PressureQuantityType"/>
+                                                <xs:element name="State" type="afn:AirStateType" minOccurs="0"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="LeakageArea">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="DischargeCoefficient" type="afn:NonNegativeValueType"/>
+                                    <xs:choice>
+                                        <xs:element name="PerItem" type="afn:AreaQuantityType"/>
+                                        <xs:element name="PerUnitLength" type="afn:AreaQuantityType"/>
+                                        <xs:element name="PerUnitArea" type="afn:AreaQuantityType"/>
+                                    </xs:choice>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="LaminarCoefficientCalculation" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specify how the laminar coefficent is/was computed from the turbulent coefficient</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element name="TransitionReynoldsNumber" type="afn:NonNegativeValueType">
                             <xs:annotation>
                                 <xs:documentation>Power law flow transition Reynolds number</xs:documentation>
                             </xs:annotation>
-                            <xs:simpleType>
-                                <xs:restriction base="xs:double">
-                                    <xs:minExclusive value="0.0"/>
-                                </xs:restriction>
-                            </xs:simpleType>
                         </xs:element>
                         <xs:element name="TransitionPressureDifference" type="afn:PressureQuantityType">
                             <xs:annotation>
@@ -662,6 +719,37 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    <!-- Tables -->
+    <xs:complexType name="PointType">
+        <xs:annotation>
+            <xs:documentation>A single independent variable, dependent variable pair</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="X" type="xs:double"/>
+            <xs:element name="Y" type="xs:double"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TableType">
+        <xs:annotation>
+            <xs:documentation>A simple one-dimensional table of values</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Periodic" minOccurs="0"/>
+            <xs:element name="Symmetric" minOccurs="0"/>
+            <xs:element name="Points">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Point" type="afn:PointType" maxOccurs="unbounded"/>
+                    </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ID" type="xs:ID" use="required">
+            <xs:annotation>
+                <xs:documentation>Name of the table, must be unique</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
     <!-- Sources and Sinks -->
     <xs:complexType name="ScheduledSourceType">
         <xs:annotation>
@@ -858,25 +946,39 @@
                 <xs:annotation>
                     <xs:documentation>Handling of pressure at this node, defaults to Variable</xs:documentation>
                 </xs:annotation>
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="Simulated">
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element name="Simulated">
                             <xs:annotation>
                                 <xs:documentation>Pressure is computed from the pressure network simlation</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>
-                        <xs:enumeration value="Fixed">
+                        </xs:element>
+                        <xs:element name="Fixed" type="afn:PressureQuantityType">
                             <xs:annotation>
                                 <xs:documentation>Pressure is fixed and never changes</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>
-                        <xs:enumeration value="Calculated">
+                        </xs:element>
+                        <xs:element name="Wind">
                             <xs:annotation>
-                                <xs:documentation>Pressure is calculated from parameters that may change during the simulation</xs:documentation>
+                                <xs:documentation>The pressure is computed based upon wind</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>
-                    </xs:restriction>
-                </xs:simpleType>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="Modifier" type="afn:NonNegativeValueType" minOccurs="0"/>
+                                    <xs:element name="Azimuth" type="afn:AngleQuantityType"/>
+                                    <xs:element name="PressureProfileID">
+                                        <xs:annotation>
+                                            <xs:documentation>ID of linked wind pressure profile</xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:attribute name="IDref" type="xs:IDREF" use="required"/>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:choice>
+                </xs:complexType>
             </xs:element>
             <xs:element name="Volume" minOccurs="0">
                 <xs:annotation>
@@ -1056,6 +1158,19 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    <xs:complexType name="WindParametersType">
+        <xs:annotation>
+            <xs:documentation>Wind model parameters</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Speed" type="afn:SpeedQuantityType"/>
+            <xs:element name="Direction" type="afn:AngleQuantityType"/>
+            <xs:element name="ReferenceElevation" type="afn:LengthQuantityType"/>
+            <xs:element name="LocalTerrainConstant" type="afn:PositiveValueType"/>
+            <xs:element name="ProfileExponent" type="afn:NonNegativeValueType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Value Types -->
     <xs:simpleType name="PositiveUnityFractionType">
         <xs:annotation>
             <xs:documentation>A fractional value between zero and one</xs:documentation>
@@ -1081,7 +1196,7 @@
             <xs:minExclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
-    <!-- Unit Enumerations -->
+    <!-- Enumerations -->
     <xs:simpleType name="LengthUnitsEnum">
         <xs:restriction base="xs:string">
             <xs:enumeration value="m"/>
@@ -1101,6 +1216,15 @@
             <xs:enumeration value="m^3"/>
             <xs:enumeration value="cm^3"/>
             <xs:enumeration value="ft^3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="SpeedUnitsEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="m/s"/>
+            <xs:enumeration value="ft/s"/>
+            <xs:enumeration value="ft/min"/>
+            <xs:enumeration value="kph"/>
+            <xs:enumeration value="mph"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="AngleUnitsEnum">
@@ -1187,6 +1311,13 @@
     <xs:simpleType name="AllTheUnitsEnum">
         <xs:union memberTypes="afn:LengthUnitsEnum afn:AreaUnitsEnum afn:VolumeUnitsEnum afn:DensityUnitsEnum afn:ConcentrationUnitsEnum afn:PressureUnitsEnum afn:TemperatureUnitsEnum afn:VolumeFlowUnitsEnum afn:MassFlowUnitsEnum afn:TimeUnitsEnum afn:SpecificHeatUnitsEnum"/>
     </xs:simpleType>
+    <xs:simpleType name="InterpolationTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Linear"/>
+            <xs:enumeration value="CubicSpline"/>
+            <xs:enumeration value="WalkerWilson"/>
+        </xs:restriction>
+    </xs:simpleType>
     <!-- Quantities -->
     <xs:complexType name="LengthQuantityType">
         <xs:annotation>
@@ -1215,6 +1346,16 @@
         <xs:simpleContent>
             <xs:extension base="afn:NonNegativeValueType">
                 <xs:attribute name="units" type="afn:VolumeUnitsEnum" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="SpeedQuantityType">
+        <xs:annotation>
+            <xs:documentation>A speed quantity with specified units</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:double">
+                <xs:attribute name="units" type="afn:SpeedUnitsEnum" use="required"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

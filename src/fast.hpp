@@ -1,4 +1,3 @@
-// Copyright (c) 2019, Alliance for Sustainable Energy, LLC
 // Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
@@ -26,31 +25,11 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef AIRFLOWNETWORK_FAST_HPP
+#define AIRFLOWNETWORK_FAST_HPP
 
-#include <string>
-#include "properties.hpp"
+float fast_pow32(float number, float power);
+double fast_pow64(double number, double power);
+double fast_pow64_065(double number);
 
-namespace airflownetwork {
-
-enum class NodeType {Simulated, Fixed, Calculated};
-
-template <typename I, typename P> struct Node : State<P>
-{
-  Node(const std::string &name, double height=0.0, double pressure=P::pressure_0, double temperature = P::temperature_0,
-    double humidity_ratio=P::humidity_ratio_0) : State<P>(pressure, temperature, humidity_ratio), name(name), height(height),
-    variable(false), index(0), wind_pressure_modifier(0.0)
-  {}
-
-  const std::string name;
-  double height;
-  bool variable;
-  I index;
-  double wind_pressure_modifier;
-  std::vector<double> concentrations;
-};
-
-}
-
-#endif // !NODE_HPP
+#endif

@@ -1,4 +1,3 @@
-// Copyright (c) 2019, Alliance for Sustainable Energy, LLC
 // Copyright (c) 2019, Jason W. DeGraw
 // All rights reserved.
 //
@@ -26,31 +25,50 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef NODE_HPP
-#define NODE_HPP
-
+#include <iostream>
+#include <vector>
+#include <random>
+#include <chrono>
+#include <array>
 #include <string>
-#include "properties.hpp"
+#include <fstream>
+#include "fast.hpp"
 
-namespace airflownetwork {
-
-enum class NodeType {Simulated, Fixed, Calculated};
-
-template <typename I, typename P> struct Node : State<P>
+int main(int argc, char* argv[])
 {
-  Node(const std::string &name, double height=0.0, double pressure=P::pressure_0, double temperature = P::temperature_0,
-    double humidity_ratio=P::humidity_ratio_0) : State<P>(pressure, temperature, humidity_ratio), name(name), height(height),
-    variable(false), index(0), wind_pressure_modifier(0.0)
-  {}
+  if (argc != 5) {
+    std::cerr << "usage: pow_plots <power> <number> <start> <end>" << std::endl;
+    return 1;
+  }
 
-  const std::string name;
-  double height;
-  bool variable;
-  I index;
-  double wind_pressure_modifier;
-  std::vector<double> concentrations;
-};
+  std::array<double, 2> F{ {0.0, 0.0} };
+  std::array<double, 2> DF{ {0.0, 0.0} };
 
+  double power = std::stod(argv[1]);
+  int count = std::stoi(argv[2]);
+  double start = std::stod(argv[3]);
+  double end = std::stod(argv[4]);
+
+  double delta = (end - start) / (double)count;
+
+  std::ofstream out;
+  out.open("pow_plots.csv");
+
+  if (!out.good()) {
+    std::cerr << "Failed to open \'pow_plots.csv\'" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  double current = start;
+  for (int i = 0; i < count; ++i) {
+    out << current << ',' << std::pow(current, power) << ',' << fast_pow64(current, power) << std::endl;
+    current += delta;
+  }
+
+  current = end;
+  out << current << ',' << std::pow(current, power) << ',' << fast_pow64(current, power) << std::endl;
+
+  out.close();
+
+  return EXIT_SUCCESS;
 }
-
-#endif // !NODE_HPP
